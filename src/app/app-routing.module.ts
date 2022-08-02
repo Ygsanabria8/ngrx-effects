@@ -1,7 +1,23 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-const routes: Routes = [];
+import { ListComponent } from './modules/users/list/list.component';
+import { UserComponent } from './modules/users/user/user.component';
+
+const routes: Routes = [
+  {
+    path: 'home',
+    component: ListComponent,
+  },
+  {
+    path: 'usuario/:id',
+    component: UserComponent,
+  },
+  {
+    path:'**',
+    redirectTo: 'home',
+  }
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
