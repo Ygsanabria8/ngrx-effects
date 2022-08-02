@@ -1,32 +1,45 @@
-import { Component, OnInit } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs/internal/Subscription';
 import { User } from 'src/app/core/models/user.model';
-import { UserService } from 'src/app/core/services/user/user.service';
+import { AppState } from 'src/app/core/store/app.reducer';
+import * as UsersActions from '../../../core/store/actions';;
 
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.scss']
 })
-export class ListComponent implements OnInit {
+export class ListComponent implements OnInit, OnDestroy {
 
   users: User[] = [];
+  loading = false;
+  error: any;
+  subscriptionStore!: Subscription;
 
   constructor(
-    private userService: UserService,
+    private store: Store<AppState>
   ) { }
 
   ngOnInit(): void {
-    this.getUsers();
+    this.stateListener();
+    this.loadUsers();
   }
 
-  async getUsers(): Promise<void> {
-    const users$ = this.userService.getUsers();
-    try {
-      this.users = await lastValueFrom(users$);
-    } catch (error) {
-      console.error(error);
-    }
+  ngOnDestroy(): void {
+    this.subscriptionStore?.unsubscribe();
+  }
+
+  stateListener(): void{
+    this.subscriptionStore = this.store.select('users').subscribe(users => {
+      this.users = [...users.users];
+      this.loading = users.loading;
+      this.error = users.error;
+    });
+  }
+
+  loadUsers(): void {
+    this.store.dispatch(UsersActions.loadUsers());
   }
 
 }

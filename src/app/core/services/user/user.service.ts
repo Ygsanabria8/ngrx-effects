@@ -15,7 +15,12 @@ export class UserService {
   ) { }
 
   getUsers(): Observable<User[]>{
-    return this._http.get<any>(`${this.url}/users`)
+    return this._http.get<any>(`${this.url}/users?per_page=6`)
+      .pipe(map( response => response.data));
+  }
+
+  getUserById(id: string): Observable<User>{
+    return this._http.get<any>(`${this.url}/users/${id}`)
       .pipe(map( response => response.data));
   }
 }
